@@ -25,48 +25,86 @@ public class CalendarModel{
 	private int selectedDay = 0;
 	private boolean monthChanged = false;
 	
+	/**
+	 * Constructor
+	 */
 	public CalendarModel() {
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 		maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		loadEvents();
 	}
 	
+	/**
+	 * Adds ChangeListeners to array.
+	 * @param l the ChangeListener
+	 */
 	public void attach(ChangeListener l) {
 		listeners.add(l);
 	}
 	
+	/**
+	 * Updates all ChangeListeners in array.
+	 */
 	public void update() {
 		for (ChangeListener l : listeners) {
 			l.stateChanged(new ChangeEvent(this));
 		}
 	}
 	
+	/**
+	 * Sets the user selected day.
+	 * @param day the day of the month
+	 */
 	public void setSelectedDate(int day) {
 		selectedDay = day;
 		cal.set(Calendar.DAY_OF_MONTH, selectedDay);
 	}
 	
+	/**
+	 * Gets the user selected day.
+	 * @return the day of the month
+	 */
 	public int getSelectedDay() {
 		return selectedDay;
 	}
 
+	/**
+	 * Gets the current year the calendar is at.
+	 * @return the current year
+	 */
 	public int getCurrentYear() {
 		return cal.get(Calendar.YEAR);
 	}
 	
+	/**
+	 * Gets the current month the calendar is at.
+	 * @return the current month
+	 */
 	public int getCurrentMonth() {
 		return cal.get(Calendar.MONTH);
 	}
 	
+	/**
+	 * Gets the value representing the day of the week
+	 * @param i the day of the month
+	 * @return the day of the week (1-7)
+	 */
 	public int getDayOfWeek(int i) {
 		cal.set(Calendar.DAY_OF_MONTH, i);
 		return cal.get(Calendar.DAY_OF_WEEK);
 	}
 	
+	/**
+	 * Gets the max number of days in a month.
+	 * @return the max number of days in a month
+	 */
 	public int getMaxDays() {
 		return maxDays;
 	}
 
+	/**
+	 * Moves the calendar forward by one month.
+	 */
 	public void nextMonth() {
 		cal.add(Calendar.MONTH, 1);
 		maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -74,6 +112,9 @@ public class CalendarModel{
 		update();
 	}
 	
+	/**
+	 * Moves the calendar backward by one month.
+	 */
 	public void prevMonth() {
 		cal.add(Calendar.MONTH, -1);
 		maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -81,6 +122,9 @@ public class CalendarModel{
 		update();
 	}
 	
+	/**
+	 * Moves the selected day forward by one.
+	 */
 	public void nextDay() {
 		selectedDay++;
 		if (selectedDay > cal.getActualMaximum(Calendar.DAY_OF_MONTH)) {
@@ -90,6 +134,9 @@ public class CalendarModel{
 		update();
 	}
 	
+	/**
+	 * Moves the selected day backward by one.
+	 */
 	public void prevDay() {
 		selectedDay--;
 		if (selectedDay < 1) {
@@ -100,6 +147,7 @@ public class CalendarModel{
 	}
 	
 	/**
+	 * Checks if the month has changed as a result of user interaction.
 	 * @return
 	 */
 	public boolean hasMonthChanged() {
@@ -107,16 +155,17 @@ public class CalendarModel{
 	}
 	
 	/**
-	 * 
+	 * Resets monthChanged to false.
 	 */
 	public void resetHasMonthChanged() {
 		monthChanged = false;
 	}
 	
 	/**
-	 * @param title
-	 * @param startTime
-	 * @param endTime
+	 * Creates an event on the currently selected date.
+	 * @param title the title of the event
+	 * @param startTime the start time of the event
+	 * @param endTime the end time of the event
 	 */
 	public void createEvent(String title, String startTime, String endTime) {
 		String date = (cal.get(Calendar.MONTH) + 1) + "/" + selectedDay + "/" + cal.get(Calendar.YEAR);
@@ -131,8 +180,8 @@ public class CalendarModel{
 	
 	/**
 	 * Checks if specified date has any events scheduled.
-	 * @param date The date given by user.
-	 * @return Boolean if the date has an event.
+	 * @param date the selected date in format MM/DD/YYYY
+	 * @return if the date has an event
 	 */
 	public Boolean hasEvent(String date) {
 		return eventMap.containsKey(date);
@@ -163,16 +212,6 @@ public class CalendarModel{
 			}
 		}
 		return false;
-	}
-	
-	/**
-	 * Converts 24:00 time to minutes
-	 * @param time the time in 24 hour format
-	 * @return the time converted to minutes
-	 */
-	private int convertHourToMin(String time) {
-		int hours = Integer.valueOf(time.substring(0, 2));
-		return hours * 60 + Integer.valueOf(time.substring(3));
 	}
 	
 	/**
@@ -236,6 +275,16 @@ public class CalendarModel{
 	}
 	
 	/**
+	 * Converts 24:00 time to minutes
+	 * @param time the time in 24 hour format
+	 * @return the time converted to minutes
+	 */
+	private int convertHourToMin(String time) {
+		int hours = Integer.valueOf(time.substring(0, 2));
+		return hours * 60 + Integer.valueOf(time.substring(3));
+	}
+
+	/**
 	 * Comparator for comparing by time in format XX:XX.
 	 * @return The comparator.
 	 */
@@ -263,7 +312,7 @@ public class CalendarModel{
 		private String endTime;
 
 		/**
-		 * Constructor for Event.
+		 * Constructor
 		 * @param title the title of the event
 		 * @param date the date of the event
 		 * @param startTime the start time of the event

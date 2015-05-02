@@ -37,7 +37,7 @@ public class CalendarView implements ChangeListener {
 	private int maxDays;
 
 	private JFrame frame = new JFrame("Calendar");
-	private JPanel monthPanel = new JPanel();
+	private JPanel monthViewPanel = new JPanel();
 	private JLabel monthLabel = new JLabel();
 	private JButton create = new JButton("Create");
 	private JButton nextDay = new JButton("Next");
@@ -45,10 +45,14 @@ public class CalendarView implements ChangeListener {
 	private JTextPane dayTextPane = new JTextPane();
 	private ArrayList<JButton> dayBtns = new ArrayList<JButton>();
 
+	/**
+	 * Constructs the calendar.
+	 * @param model the  model that stores and manipulates calendar data
+	 */
 	public CalendarView(CalendarModel model) {
 		this.model = model;
 		maxDays = model.getMaxDays();
-		monthPanel.setLayout(new GridLayout(0, 7));
+		monthViewPanel.setLayout(new GridLayout(0, 7));
 		dayTextPane.setPreferredSize(new Dimension(300, 150));
 		dayTextPane.setEditable(false);
 		JScrollPane dayScrollPane = new JScrollPane(dayTextPane);
@@ -63,7 +67,7 @@ public class CalendarView implements ChangeListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				createEvent();
+				createEventDialog();
 			}
 		});
 		JButton prevMonth = new JButton("<");
@@ -90,14 +94,21 @@ public class CalendarView implements ChangeListener {
 				dayTextPane.setText("");
 			}
 		});
-
-		JPanel dayPanel = new JPanel();
-		dayPanel.setLayout(new GridBagLayout());
+		
+		JPanel monthContainer = new JPanel();
+		monthContainer.setLayout(new BorderLayout());
+		monthLabel.setText(arrayOfMonths[model.getCurrentMonth()] + " " + model.getCurrentYear());
+		monthContainer.add(monthLabel, BorderLayout.NORTH);
+		monthContainer.add(new JLabel("       S             M             T             W             T              F             S"), BorderLayout.CENTER);
+		monthContainer.add(monthViewPanel, BorderLayout.CENTER);
+		
+		JPanel dayViewPanel = new JPanel();
+		dayViewPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
-		dayPanel.add(dayScrollPane, c);
+		dayViewPanel.add(dayScrollPane, c);
 		JPanel btnsPanel = new JPanel();
 		nextDay.addActionListener(new ActionListener() {
 
@@ -118,16 +129,7 @@ public class CalendarView implements ChangeListener {
 		btnsPanel.add(nextDay);
 		c.gridx = 0;
 		c.gridy = 1;
-		dayPanel.add(btnsPanel, c);
-
-		JPanel monthContainer = new JPanel();
-		monthContainer.setLayout(new BorderLayout());
-		monthLabel.setText(arrayOfMonths[model.getCurrentMonth()] + " " + model.getCurrentYear());
-		monthContainer.add(monthLabel, BorderLayout.NORTH);
-		monthContainer.add(new JLabel(
-				"       S             M             T             W             T              F             S"),
-				BorderLayout.CENTER);
-		monthContainer.add(monthPanel, BorderLayout.SOUTH);
+		dayViewPanel.add(btnsPanel, c);
 
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener() {
@@ -139,12 +141,12 @@ public class CalendarView implements ChangeListener {
 			}
 		});
 
-		showDate(cal.get(Calendar.DATE));
+		showDate(model.getSelectedDay() + 1);
 
 		frame.add(prevMonth);
 		frame.add(monthContainer);
 		frame.add(nextMonth);
-		frame.add(dayPanel);
+		frame.add(dayViewPanel);
 		frame.add(quit);
 		frame.setLayout(new FlowLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -157,7 +159,7 @@ public class CalendarView implements ChangeListener {
 		if (model.hasMonthChanged()) {
 			maxDays = model.getMaxDays();
 			dayBtns.clear();
-			monthPanel.removeAll();
+			monthViewPanel.removeAll();
 			monthLabel.setText(arrayOfMonths[model.getCurrentMonth()] + " " + model.getCurrentYear());
 			createDayBtns();
 			addBlankBtns();
@@ -173,7 +175,10 @@ public class CalendarView implements ChangeListener {
 		}
 	}
 
-	private void createEvent() {
+	/**
+	 * Creates an event on the selected date through user input.
+	 */
+	private void createEventDialog() {
 		final JDialog eventDialog = new JDialog();
 		eventDialog.setTitle("Create event");
 		eventDialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
@@ -185,12 +190,18 @@ public class CalendarView implements ChangeListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if ((!eventText.getText().equals("") && (timeStart.getText().equals("") || timeEnd.getText().equals("")))
-						|| timeStart.getText().length() < 5 || timeEnd.getText().length() < 5) {
+				if (eventText.getText().isEmpty()) {
+					return;
+				}
+				if ((!eventText.getText().isEmpty() && (timeStart.getText().isEmpty() || timeEnd.getText().isEmpty()))
+						|| timeStart.getText().length() != 5
+						|| timeEnd.getText().length() != 5
+						|| !timeStart.getText().matches("([01]?[0-9]|2[0-3]):[0-5][0-9]")
+						|| !timeEnd.getText().matches("([01]?[0-9]|2[0-3]):[0-5][0-9]")) {
 					JDialog timeErrorDialog = new JDialog();
 					timeErrorDialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 					timeErrorDialog.setLayout(new GridLayout(2, 0));
-					timeErrorDialog.add(new JLabel("Please enter starting and end time in format XX:XX."));
+					timeErrorDialog.add(new JLabel("Please enter start and end time in format XX:XX."));
 					JButton ok = new JButton("Okay");
 					ok.addActionListener(new ActionListener() {
 
@@ -261,14 +272,56 @@ public class CalendarView implements ChangeListener {
 		eventDialog.setVisible(true);
 	}
 
+	/**
+	 * Shows the selected date and events on that date.
+	 * @param d the selected date
+	 */
+	private void showDate(final int d) {
+		model.setSelectedDate(d);
+		String dayOfWeek = arrayOfDays[model.getDayOfWeek(d) - 1] + "";
+		String date = (model.getCurrentMonth() + 1) + "/" + d + "/" + model.getCurrentYear();
+		String events = "";
+		if (model.hasEvent(date)) {
+			events += model.getEvents(date);
+		}
+		dayTextPane.setText(dayOfWeek + " " + date + "\n" + events);
+	}
+
+	/**
+	 * Highlights the currently selected date.
+	 * @param d the currently selected date
+	 */
+	private void highlightSelectedDate(int d) {
+		Border border = new LineBorder(Color.ORANGE, 2);
+		dayBtns.get(d).setBorder(border);
+		if (prevHighlight != -1) {
+			dayBtns.get(prevHighlight).setBorder(new JButton().getBorder());
+		}
+		prevHighlight = d;
+	}
+
+	/**
+	 * Highlights days containing events.
+	 */
+	private void highlightEvents() {
+		for (int i = 1; i <= maxDays; i++) {
+			if (model.hasEvent((model.getCurrentMonth() + 1) + "/" + i + "/" + model.getCurrentYear())) {
+				dayBtns.get(i - 1).setBackground(Color.decode("0xE4EFF8"));
+			}
+		}
+	}
+
+	/**
+	 * Creates buttons representing days of the current month and adds them to an array list.
+	 */
 	private void createDayBtns() {
 		for (int i = 1; i <= maxDays; i++) {
 			final int d = i;
 			JButton day = new JButton(Integer.toString(d));
 			day.setBackground(Color.WHITE);
-
+	
 			day.addActionListener(new ActionListener() {
-
+	
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					showDate(d);
@@ -281,50 +334,27 @@ public class CalendarView implements ChangeListener {
 			dayBtns.add(day);
 		}
 		if (model.getCurrentMonth() == cal.get(Calendar.MONTH) && model.getCurrentYear() == cal.get(Calendar.YEAR)) {
-			Border border = new LineBorder(Color.red, 2);
-			dayBtns.get(cal.get(Calendar.DATE) - 1).setBorder(border);
+			highlightSelectedDate(cal.get(Calendar.DATE) - 1);
 		}
 	}
 
-	private void showDate(final int d) {
-		model.setSelectedDate(d);
-		String dayOfWeek = arrayOfDays[model.getDayOfWeek(d) - 1] + "";
-		String date = (model.getCurrentMonth() + 1) + "/" + d + "/" + model.getCurrentYear();
-		String events = "";
-		if (model.hasEvent(date)) {
-			events += model.getEvents(date);
-		}
-		dayTextPane.setText(dayOfWeek + " " + date + "\n" + events);
-	}
-
-	private void highlightSelectedDate(int i) {
-		Border border = new LineBorder(Color.ORANGE, 2);
-		dayBtns.get(i).setBorder(border);
-		if (prevHighlight != -1) {
-			dayBtns.get(prevHighlight).setBorder(new JButton().getBorder());
-		}
-		prevHighlight = i;
-	}
-
-	private void highlightEvents() {
-		for (int i = 1; i <= maxDays; i++) {
-			if (model.hasEvent((model.getCurrentMonth() + 1) + "/" + i + "/" + model.getCurrentYear())) {
-				dayBtns.get(i - 1).setBackground(Color.decode("0xE4EFF8"));
-			}
+	/**
+	 * Adds the buttons representing the days of the month to the panel.
+	 */
+	private void addDayBtns() {
+		for (JButton d : dayBtns) {
+			monthViewPanel.add(d);
 		}
 	}
 
+	/**
+	 * Adds filler buttons before the start of the month to align calendar.
+	 */
 	private void addBlankBtns() {
 		for (int j = 1; j < model.getDayOfWeek(1); j++) {
 			JButton blank = new JButton();
 			blank.setEnabled(false);
-			monthPanel.add(blank);
-		}
-	}
-
-	private void addDayBtns() {
-		for (JButton d : dayBtns) {
-			monthPanel.add(d);
+			monthViewPanel.add(blank);
 		}
 	}
 }
