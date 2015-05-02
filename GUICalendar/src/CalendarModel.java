@@ -19,16 +19,17 @@ import javax.swing.event.ChangeListener;
 public class CalendarModel{
 
 	private int maxDays;
+	private int selectedDay;
 	private HashMap<String, ArrayList<Event>> eventMap = new HashMap<>();
 	private ArrayList<ChangeListener> listeners = new ArrayList<>();
 	private GregorianCalendar cal = new GregorianCalendar();
-	private int selectedDay = 0;
 	private boolean monthChanged = false;
 	
 	/**
 	 * Constructor
 	 */
 	public CalendarModel() {
+		setSelectedDate(cal.get(Calendar.DATE));
 		cal.set(Calendar.DAY_OF_MONTH, 1);
 		maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		loadEvents();

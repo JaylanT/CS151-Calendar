@@ -10,8 +10,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -32,7 +30,6 @@ public class CalendarView implements ChangeListener {
 	private CalendarModel model;
 	private DAYS[] arrayOfDays = DAYS.values();
 	private MONTHS[] arrayOfMonths = MONTHS.values();
-	private GregorianCalendar cal = new GregorianCalendar();
 	private int prevHighlight = -1;
 	private int maxDays;
 
@@ -140,8 +137,9 @@ public class CalendarView implements ChangeListener {
 				System.exit(0);
 			}
 		});
-
-		showDate(model.getSelectedDay() + 1);
+		
+		showDate(model.getSelectedDay());
+		highlightSelectedDate(model.getSelectedDay() - 1);
 
 		frame.add(prevMonth);
 		frame.add(monthContainer);
@@ -332,9 +330,6 @@ public class CalendarView implements ChangeListener {
 				}
 			});
 			dayBtns.add(day);
-		}
-		if (model.getCurrentMonth() == cal.get(Calendar.MONTH) && model.getCurrentYear() == cal.get(Calendar.YEAR)) {
-			highlightSelectedDate(cal.get(Calendar.DATE) - 1);
 		}
 	}
 
