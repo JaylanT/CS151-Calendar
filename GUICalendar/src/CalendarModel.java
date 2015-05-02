@@ -29,8 +29,7 @@ public class CalendarModel{
 	 * Constructor
 	 */
 	public CalendarModel() {
-		setSelectedDate(cal.get(Calendar.DATE));
-		cal.set(Calendar.DAY_OF_MONTH, 1);
+		selectedDay = cal.get(Calendar.DATE);
 		maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
 		loadEvents();
 	}
@@ -58,7 +57,6 @@ public class CalendarModel{
 	 */
 	public void setSelectedDate(int day) {
 		selectedDay = day;
-		cal.set(Calendar.DAY_OF_MONTH, selectedDay);
 	}
 	
 	/**
