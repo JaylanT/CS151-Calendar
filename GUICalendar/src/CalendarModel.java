@@ -267,7 +267,6 @@ public class CalendarModel{
 			oIn.close();
 			fIn.close();
 		} catch (IOException ioe) {
-			System.out.println("First run. No events found.");
 		} catch (ClassNotFoundException c) {
 			System.out.println("Class not found");
 			c.printStackTrace();
