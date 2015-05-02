@@ -1,4 +1,3 @@
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,7 +14,10 @@ import java.util.HashMap;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
+/**
+ * @author Jaylan Tse
+ * Model for Calendar.
+ */
 public class CalendarModel{
 
 	private int maxDays;
@@ -29,8 +31,8 @@ public class CalendarModel{
 	 * Constructor
 	 */
 	public CalendarModel() {
-		selectedDay = cal.get(Calendar.DATE);
 		maxDays = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		selectedDay = cal.get(Calendar.DATE);
 		loadEvents();
 	}
 	
@@ -127,8 +129,8 @@ public class CalendarModel{
 	public void nextDay() {
 		selectedDay++;
 		if (selectedDay > cal.getActualMaximum(Calendar.DAY_OF_MONTH)) {
-			selectedDay = 1;
 			nextMonth();
+			selectedDay = 1;
 		}
 		update();
 	}

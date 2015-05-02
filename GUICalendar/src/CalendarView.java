@@ -25,6 +25,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+/**
+ * @author Jaylan Tse
+ * View and controller for Calendar.
+ */
 public class CalendarView implements ChangeListener {
 
 	private CalendarModel model;
@@ -52,13 +56,13 @@ public class CalendarView implements ChangeListener {
 		monthViewPanel.setLayout(new GridLayout(0, 7));
 		dayTextPane.setPreferredSize(new Dimension(300, 150));
 		dayTextPane.setEditable(false);
-		JScrollPane dayScrollPane = new JScrollPane(dayTextPane);
-		dayScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		createDayBtns();
 		addBlankBtns();
 		addDayBtns();
 		highlightEvents();
+		showDate(model.getSelectedDay());
+		highlightSelectedDate(model.getSelectedDay() - 1);
 
 		create.addActionListener(new ActionListener() {
 
@@ -105,6 +109,8 @@ public class CalendarView implements ChangeListener {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
+		JScrollPane dayScrollPane = new JScrollPane(dayTextPane);
+		dayScrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		dayViewPanel.add(dayScrollPane, c);
 		JPanel btnsPanel = new JPanel();
 		nextDay.addActionListener(new ActionListener() {
@@ -137,9 +143,6 @@ public class CalendarView implements ChangeListener {
 				System.exit(0);
 			}
 		});
-		
-		showDate(model.getSelectedDay());
-		highlightSelectedDate(model.getSelectedDay() - 1);
 
 		frame.add(prevMonth);
 		frame.add(monthContainer);
@@ -283,6 +286,7 @@ public class CalendarView implements ChangeListener {
 			events += model.getEvents(date);
 		}
 		dayTextPane.setText(dayOfWeek + " " + date + "\n" + events);
+		dayTextPane.setCaretPosition(0);
 	}
 
 	/**

@@ -1,4 +1,7 @@
-
+/**
+ * @author Jaylan Tse
+ * Tester for Calendar.
+ */
 public class SimpleCalendar {
 
 	public static void main(String[] args) {
