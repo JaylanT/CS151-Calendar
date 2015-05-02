@@ -100,7 +100,7 @@ public class CalendarView implements ChangeListener {
 		monthLabel.setText(arrayOfMonths[model.getCurrentMonth()] + " " + model.getCurrentYear());
 		monthContainer.add(monthLabel, BorderLayout.NORTH);
 		monthContainer.add(new JLabel("       S             M             T             W             T              F             S"), BorderLayout.CENTER);
-		monthContainer.add(monthViewPanel, BorderLayout.CENTER);
+		monthContainer.add(monthViewPanel, BorderLayout.SOUTH);
 		
 		JPanel dayViewPanel = new JPanel();
 		dayViewPanel.setLayout(new GridBagLayout());
